@@ -1,0 +1,41 @@
+set(SOURCE_FILES
+    src/main.cpp
+)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+cmake_minimum_required(VERSION 3.5)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 17)
+
+project(online_project VERSION 1.0)
+
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+file(
+    DOWNLOAD
+    https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.3/CPM.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
+    EXPECTED_HASH SHA256=cc155ce02e7945e7b8967ddfaff0b050e958a723ef7aad3766d368940cb15494
+)
+include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
+
+set(LIBS)
+
+CPMAddPackage("gh:libsdl-org/SDL#b3336c5")
+list(APPEND LIBS SDL3::SDL3)
+
+set(SDL_IMAGE_AVIF OFF CACHE OBOL "" FORCE)
+CPMAddPackage("gh:libsdl-org/SDL_image#6b98396")
+list(APPEND LIBS SDL3_image::SDL3_image)
+
+
+# CPMAddPackage("gh:libsdl-org/SDL_ttf#aaab1b9")
+# list(APPEND LIBS SDL3_ttf::SDL3_ttf)
+
+
+CPMAddPackage("gh:SanderMertens/flecs#e0d6ded")
+list(APPEND LIBS flecs::flecs)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})

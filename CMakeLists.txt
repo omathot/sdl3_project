@@ -1,14 +1,15 @@
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+cmake_minimum_required(VERSION 3.5)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 17)
+project(sdl3_project VERSION 1.0)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 set(SOURCE_FILES
     src/main.cpp
 )
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-cmake_minimum_required(VERSION 3.5)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_STANDARD 17)
-
-project(sdl3_project VERSION 1.0)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -31,11 +32,12 @@ CPMAddPackage("gh:libsdl-org/SDL_image#6b98396")
 list(APPEND LIBS SDL3_image::SDL3_image)
 
 
-# CPMAddPackage("gh:libsdl-org/SDL_ttf#aaab1b9")
-# list(APPEND LIBS SDL3_ttf::SDL3_ttf)
+set(SDLTTF_VENDORED ON)
+CPMAddPackage("gh:libsdl-org/SDL_ttf#347914e")
+list(APPEND LIBS SDL3_ttf::SDL3_ttf)
 
 
-CPMAddPackage("gh:SanderMertens/flecs#e0d6ded")
+CPMAddPackage("gh:SanderMertens/flecs#8a1e9ab")
 list(APPEND LIBS flecs::flecs)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})

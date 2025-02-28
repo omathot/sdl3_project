@@ -1,9 +1,13 @@
-#include <SDL3/SDL_events.h>
-#include <SDL3/SDL_keycode.h>
-#include <SDL3/SDL_video.h>
 #include <iostream>
 #include <SDL3/SDL.h>
 #include <flecs.h>
+
+struct Vec2 {
+  int x;
+  int y;
+};
+
+struct Enemy {};
 
 int main(int argc, char **argv) {
   SDL_Log("Starting init");
@@ -18,20 +22,36 @@ int main(int argc, char **argv) {
   }
 
   SDL_Event event;
-  while (true) {
+  bool is_playing = true;
+  while (is_playing) {
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
         case SDL_EVENT_QUIT:
-          return 0 ;
+          is_playing = false ;
         default: break ;
       }
     }
   }
   flecs::world ecs;
+  auto e = ecs.entity("Bob").add<Enemy>();
+  if (e.has<Enemy>()) {
+    std::cout << "E is enemy tagged" << std::endl;
+  }
+  e.add<Vec2>();
+  e.set<Vec2>({19, 91});
+  e.remove<Vec2>();
+  const Vec2 *vec = e.get<Vec2>();
+  std::cout << vec->x << " " << vec->y << std::endl;
+  std::cout << "Entity name: " << e.name() << std::endl;
+  ecs.lookup("Bob");
+  e.is_alive();
+  e.destruct();
+  if (!e.is_alive()) {
+    SDL_Log("E is dead\n");
+  }
   
   std::cout << "Hello World!" << std::endl;
 
   SDL_DestroyWindow(window);
   return 0;
-  
 }

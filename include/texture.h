@@ -11,8 +11,8 @@ public:
   Texture();
   ~Texture();
 
-  bool loadFromFile(std::string path, App &app);
-  void render(float x, float y, App &app);
+  bool loadFromFile(std::string path, App *app);
+  void render(float x, float y, App *app);
   void destroy();
 
   int getWidth();

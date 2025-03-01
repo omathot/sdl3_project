@@ -6,7 +6,10 @@
 int main(int argc, char **argv) {
   App *app = new App();
 
-  app->init();
+  if (!app->init()) {
+    std::cout << "Received error, exitting." << std::endl;
+    return 1;
+  }
   app->run();
   std::cout << "Finished app run" << std::endl;
   delete(app);

@@ -1,13 +1,12 @@
 #include "app.h"
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#include <iostream>
 
-
-App::App() {
+App::App() : _textures{} {
   SDL_Log("Creating app\n");
   this->_renderer = nullptr;
   this->_window = nullptr;
-  this->_texture = nullptr;
   this->_isRunning = false;
 }
 
@@ -16,14 +15,17 @@ App::~App() {
   SDL_DestroyWindow(_window);
   SDL_Log("Destroying renderer\n");
   SDL_DestroyRenderer(_renderer);
-  SDL_Log("Destroying texture\n");
-  this->_texture->destroy();
+  SDL_Log("Destroying textures\n");
+  // for (auto &texture : _textures) {
+  //   texture.second.destroy();
+  // }
 
   SDL_Log("Quitting SDL\n");
   SDL_Quit();
 }
 
 bool App::init() {
+  SDL_Log("Initializing\n");
   bool success = true;
 
   if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -34,10 +36,15 @@ bool App::init() {
       SDL_Log("Window could not be created! SDL error: %s\n", SDL_GetError());
       success = false;
     } 
-    // if (success = this->_texture->loadFromFile("assets/test.png"), !success) {
-    //   SDL_Log("Unable to load png image!\n");
-    // }
+    success &= this->_textures["UP"].loadFromFile("C:/Users/Oscar/dev/projects/build/sdl3_project/assets/emoticons.png", this);
+    success &= this->_textures["DOWN"].loadFromFile("C:/Users/Oscar/dev/projects/build/sdl3_project/assets/emoticons.png", this);
+    success &= this->_textures["RIGHT"].loadFromFile("C:/Users/Oscar/dev/projects/build/sdl3_project/assets/emoticons.png", this);
+    success &= this->_textures["LEFT"].loadFromFile("C:/Users/Oscar/dev/projects/build/sdl3_project/assets/emoticons.png", this);
+    if (!success) {
+      SDL_Log("Failed to load images !\n");
+    }
   }
+  std::cout << "returning success: " << success << std::endl;
   return success;
 }
 
@@ -52,6 +59,12 @@ void App::run() {
         default: break ;
       }
     }
+    SDL_SetRenderDrawColor(_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_RenderClear(_renderer);
+    for (auto &texture: _textures) {
+      texture.second.render(0.0f, 0.0f, this);
+    }
+    SDL_RenderPresent(_renderer);
   }
 }
 
@@ -63,8 +76,8 @@ SDL_Renderer *App::getRenderer() const {
   return this->_renderer;
 }
 
-Texture *App::getTexture() const {
-  return this->_texture;
+std::map<std::string, Texture> App::getTextures() const {
+  return this->_textures;
 }
 
 bool App::isRunning() const {

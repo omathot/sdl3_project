@@ -8,6 +8,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(SOURCE_FILES
     src/main.cpp
+    src/app.cpp
+    src/texture.cpp
 )
 
 

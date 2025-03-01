@@ -8,6 +8,7 @@ App::App() : _textures{} {
   this->_renderer = nullptr;
   this->_window = nullptr;
   this->_isRunning = false;
+  this->_currentTexture = "";
 }
 
 App::~App() {
@@ -16,9 +17,6 @@ App::~App() {
   SDL_Log("Destroying renderer\n");
   SDL_DestroyRenderer(_renderer);
   SDL_Log("Destroying textures\n");
-  // for (auto &texture : _textures) {
-  //   texture.second.destroy();
-  // }
 
   SDL_Log("Quitting SDL\n");
   SDL_Quit();
@@ -32,14 +30,14 @@ bool App::init() {
     SDL_Log("SDL could not initialize! SDL error: %s\n", SDL_GetError());
     success = false;
   } else {
-    if (!SDL_CreateWindowAndRenderer("Textures", 800, 400, 0, &_window, &_renderer)) {
+    if (!SDL_CreateWindowAndRenderer("Textures", 800, 400, SDL_WINDOW_RESIZABLE, &_window, &_renderer)) {
       SDL_Log("Window could not be created! SDL error: %s\n", SDL_GetError());
       success = false;
     } 
     success &= this->_textures["UP"].loadFromFile("C:/Users/Oscar/dev/projects/build/sdl3_project/assets/emoticons.png", this);
-    success &= this->_textures["DOWN"].loadFromFile("C:/Users/Oscar/dev/projects/build/sdl3_project/assets/emoticons.png", this);
-    success &= this->_textures["RIGHT"].loadFromFile("C:/Users/Oscar/dev/projects/build/sdl3_project/assets/emoticons.png", this);
-    success &= this->_textures["LEFT"].loadFromFile("C:/Users/Oscar/dev/projects/build/sdl3_project/assets/emoticons.png", this);
+    success &= this->_textures["DOWN"].loadFromFile("C:/Users/Oscar/dev/projects/build/sdl3_project/assets/girl.png", this);
+    success &= this->_textures["RIGHT"].loadFromFile("C:/Users/Oscar/dev/projects/build/sdl3_project/assets/honey.png", this);
+    success &= this->_textures["LEFT"].loadFromFile("C:/Users/Oscar/dev/projects/build/sdl3_project/assets/penguin.png", this);
     if (!success) {
       SDL_Log("Failed to load images !\n");
     }
@@ -53,16 +51,26 @@ void App::run() {
   this->_isRunning = true;
   while (_isRunning) {
     while (SDL_PollEvent(&event)) {
-      switch (event.type) {
-        case SDL_EVENT_QUIT:
-          _isRunning = false ;
-        default: break ;
+      if (event.type == SDL_EVENT_QUIT) {
+        _isRunning = false;
+      } else if (event.type == SDL_EVENT_KEY_DOWN) {
+        if (event.key.key == SDLK_UP) {
+          _currentTexture = "UP";
+        } else if (event.key.key == SDLK_DOWN) {
+          _currentTexture = "DOWN";
+        } else if (event.key.key == SDLK_LEFT) {
+          _currentTexture = "LEFT";
+        } else if (event.key.key == SDLK_RIGHT) {
+          _currentTexture = "RIGHT";
+        }
       }
     }
     SDL_SetRenderDrawColor(_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
     SDL_RenderClear(_renderer);
     for (auto &texture: _textures) {
-      texture.second.render(0.0f, 0.0f, this);
+      if (_currentTexture == texture.first) {
+        texture.second.render(0.0f, 0.0f, this);
+      }
     }
     SDL_RenderPresent(_renderer);
   }

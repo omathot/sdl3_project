@@ -22,4 +22,5 @@ private:
   SDL_Renderer *_renderer;
   bool _isRunning;
   std::map<std::string, Texture> _textures;
+  std::string _currentTexture;
 };

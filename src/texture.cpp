@@ -1,55 +1,48 @@
 #include "texture.h"
-#include "app.h"
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#include <spdlog/spdlog.h>
 
-Texture::Texture() {
-  this->_texture = nullptr;
-  this->_width = 0;
-  this->_height = 0;
-}
-  
-Texture::~Texture() {
-  this->destroy();
-}
-
-bool Texture::loadFromFile(std::string path, App *app) {
-  this->destroy();
-
-  if (SDL_Surface *loadedSurface = IMG_Load(path.c_str()); loadedSurface == nullptr) {
-    SDL_Log("Unable to load image %s! SDL_image error: %s\n", path.c_str(), SDL_GetError());
-  } else {
-      if (this->_texture = SDL_CreateTextureFromSurface(app->getRenderer(), loadedSurface), this->_texture == nullptr) {
-      SDL_Log("Unable to create texture from loaded data! SDL error: %s\n", SDL_GetError());
-    } else {
-      this->_width = loadedSurface->w;
-      this->_height = loadedSurface->h;
-    }
-    SDL_DestroySurface(loadedSurface);
-  }
-  return this->_texture != nullptr;
-  
-}
-
-void Texture::destroy() {
-  if (this->_texture != nullptr) {
-    SDL_Log("Texture non null\n");
-    SDL_DestroyTexture(this->_texture);
-  }
+Texture::Texture(const std::string &path) : _path(path) {
   this->_texture = nullptr;
   this->_width = 0;
   this->_height = 0;
 }
 
-void Texture::render(float x, float y, App *app) {
-  SDL_FRect dstRect = {x, y, static_cast<float>(this->_width), static_cast<float>(this->_height)};
-  SDL_RenderTexture(app->getRenderer(), this->_texture, nullptr, &dstRect);
+bool Texture::load(SDL_Renderer *renderer) {
+  _texture.reset();
+
+  SDL_Surface *loadedSurface = IMG_Load(_path.c_str());
+  if (!loadedSurface) {
+    spdlog::error("Failed to IMG_Load texture");
+    return false;
+  }
+
+  _texture.reset(SDL_CreateTextureFromSurface(renderer, loadedSurface), SDLTextureCleaner());
+  _width = loadedSurface->w;
+  _height = loadedSurface->h;
+
+  SDL_DestroySurface(loadedSurface);
+
+  return _texture != nullptr;
 }
 
-int Texture::getHeight() {
+bool Texture::isLoaded() const {
+  return _texture != nullptr;
+}
+
+const std::string &Texture::getPath() const {
+  return _path;
+}
+
+std::shared_ptr<SDL_Texture> Texture::getTexture() const {
+  return _texture;
+}
+
+int Texture::getHeight() const {
   return this->_height;
 }
 
-int Texture::getWidth() {
+int Texture::getWidth() const {
   return this->_width;
 }

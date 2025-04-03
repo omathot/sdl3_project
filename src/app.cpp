@@ -1,59 +1,69 @@
 #include "app.h"
+#include "assetManager.h"
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
-#include <iostream>
+#include <memory>
+#include <spdlog/spdlog.h>
 
-App::App() : _textures{} {
-  SDL_Log("Creating app\n");
+App::App() : _assetManager(std::make_unique<AssetManager>()), _textures{} {
+  spdlog::debug("Creating app");
   this->_renderer = nullptr;
   this->_window = nullptr;
   this->_isRunning = false;
-  this->_currentTexture = "";
+  this->_currentTexture = "UP";
 }
 
 App::~App() {
-  SDL_Log("Destroying window\n");
-  SDL_DestroyWindow(_window);
-  SDL_Log("Destroying renderer\n");
-  SDL_DestroyRenderer(_renderer);
-  SDL_Log("Destroying textures\n");
+  spdlog::debug("Cleaning textures");
 
-  SDL_Log("Quitting SDL\n");
+  spdlog::info("Quitting");
   SDL_Quit();
 }
 
 bool App::init() {
-  SDL_Log("Initializing\n");
+  spdlog::info("Initializing App");
   bool success = true;
 
   if (!SDL_Init(SDL_INIT_VIDEO)) {
-    SDL_Log("SDL could not initialize! SDL error: %s\n", SDL_GetError());
+    spdlog::error("SDL could not initialize! SDL error: {}", SDL_GetError());
     success = false;
   } else {
-    if (!SDL_CreateWindowAndRenderer("Textures", 800, 400, SDL_WINDOW_RESIZABLE, &_window, &_renderer)) {
-      SDL_Log("Window could not be created! SDL error: %s\n", SDL_GetError());
+    SDL_Window *windowPtr = nullptr;
+    SDL_Renderer *rendererPtr = nullptr;
+    if (!SDL_CreateWindowAndRenderer("Textures", 800, 400, SDL_WINDOW_RESIZABLE, &windowPtr, &rendererPtr)) {
+      spdlog::error("Window could not be created! SDL error: {}", SDL_GetError());
       success = false;
     } 
-    success &= this->_textures["UP"].loadFromFile("C:/Users/Oscar/dev/projects/build/sdl3_project/assets/emoticons.png", this);
-    success &= this->_textures["DOWN"].loadFromFile("C:/Users/Oscar/dev/projects/build/sdl3_project/assets/girl.png", this);
-    success &= this->_textures["RIGHT"].loadFromFile("C:/Users/Oscar/dev/projects/build/sdl3_project/assets/honey.png", this);
-    success &= this->_textures["LEFT"].loadFromFile("C:/Users/Oscar/dev/projects/build/sdl3_project/assets/penguin.png", this);
-    if (!success) {
-      SDL_Log("Failed to load images !\n");
+    _window.reset(windowPtr);
+    _renderer.reset(rendererPtr);
+    spdlog::debug("Initialised App window and renderer");
+
+    _textures["UP"] = _assetManager->loadTexture("UP", "girl.png", _renderer.get());
+    _textures["DOWN"] = _assetManager->loadTexture("DOWN", "emoticons.png", _renderer.get());
+    _textures["RIGHT"] = _assetManager->loadTexture("RIGHT", "honey.png", _renderer.get());
+    _textures["LEFT"] = _assetManager->loadTexture("LEFT", "penguin.png", _renderer.get());
+
+    for (const auto &[key, texture]: _textures) {
+      if (!texture) {
+        success = false;
+        spdlog::error("Failed to load texture {}", texture->getPath());
+      }
     }
   }
-  std::cout << "returning success: " << success << std::endl;
   return success;
 }
 
 void App::run() {
   SDL_Event event;
-  this->_isRunning = true;
+  _isRunning = true;
   while (_isRunning) {
     while (SDL_PollEvent(&event)) {
       if (event.type == SDL_EVENT_QUIT) {
         _isRunning = false;
       } else if (event.type == SDL_EVENT_KEY_DOWN) {
+        if (event.key.key == SDLK_ESCAPE) {
+          _isRunning = false;
+        }
         if (event.key.key == SDLK_UP) {
           _currentTexture = "UP";
         } else if (event.key.key == SDLK_DOWN) {
@@ -65,26 +75,30 @@ void App::run() {
         }
       }
     }
-    SDL_SetRenderDrawColor(_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-    SDL_RenderClear(_renderer);
-    for (auto &texture: _textures) {
-      if (_currentTexture == texture.first) {
-        texture.second.render(0.0f, 0.0f, this);
-      }
+    SDL_SetRenderDrawColor(_renderer.get(), 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_RenderClear(_renderer.get());
+    auto it = _textures.find(_currentTexture);
+    if (it == _textures.end()) {
+      spdlog::error("Cannot find {} in _textures", _currentTexture);
+      continue;
     }
-    SDL_RenderPresent(_renderer);
+    int w = 0;
+    int h = 0;
+    SDL_GetWindowSize(_window.get(), &w, &h);
+    SDL_RenderTexture(_renderer.get(), it->second->getTexture().get(), NULL, NULL);
+    SDL_RenderPresent(_renderer.get());
   }
 }
 
 SDL_Window *App::getWindow() const {
-  return this->_window;
+  return this->_window.get();
 }
 
 SDL_Renderer *App::getRenderer() const {
-  return this->_renderer;
+  return this->_renderer.get();
 }
 
-std::map<std::string, Texture> App::getTextures() const {
+std::map<std::string, std::shared_ptr<Texture>> App::getTextures() const {
   return this->_textures;
 }
 

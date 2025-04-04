@@ -2,7 +2,7 @@
 #include <spdlog/spdlog.h>
 #include "app.h"
 
-void spdlog_ref() {
+void _spdlog_ref() {
   spdlog::info("Info!");
   spdlog::warn("Warn!");
   spdlog::warn("Easy padding in numbers like {:08d}", 12);

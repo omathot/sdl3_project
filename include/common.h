@@ -1,9 +1,12 @@
 #pragma once
 
-
-struct Vec2 {
+typedef struct {
   int x;
   int y;
-};
+} Vec2;
 
-struct Enemy {};
+typedef struct {
+  int x;
+  int y;
+  int z;
+} Vec3;

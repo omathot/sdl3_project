@@ -70,6 +70,10 @@ void Player::render(SDL_Renderer *renderer) {
 
 
 // state registrations
+/*
+  could reduce input handling code duplication by taking the most common inputs and put them in helper fn
+  or make a base ground state that handles common input
+*/
 void Player::registerIdleState() {
   _enterFunctions["idle"] = [this](Player *player) {
     _animations["idle"]->play();
@@ -78,9 +82,9 @@ void Player::registerIdleState() {
   _updateFunctions["idle"] = [this](Player *player, float deltaTime) {
     _animations["idle"]->update();
     if (!_grounded) {
-      changeState("jump");
+      changeState("jump"); // gameplay consequence (player doesn't need to press jump to fall off a ledge and be in jump state)
     } else if (std::abs(_velocity.x) > 0.1) {
-      changeState("run");
+      changeState("run"); // if player could be pushed, wouldn't need to input movement to get to "run"
     }
   };
 

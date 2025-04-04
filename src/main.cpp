@@ -27,11 +27,14 @@ void set_logging_level(char *str) {
     spdlog::set_level(spdlog::level::warn);
   } else if (level == "error") {
     spdlog::set_level(spdlog::level::err);
+  } else {
+    spdlog::error("Invalid logging level");
+    exit(1);
   }
 }
 
 int main(int argc, char **argv) {
-  if (argc > 0) {
+  if (argc > 1) {
     set_logging_level(argv[1]);
   }
   App *app = new App();

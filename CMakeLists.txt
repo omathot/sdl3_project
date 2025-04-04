@@ -19,6 +19,7 @@ set(SOURCE_FILES
     src/texture.cpp
     src/player.cpp
     src/assetManager.cpp
+    src/animation.cpp
 )
 
 

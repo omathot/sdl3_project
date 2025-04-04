@@ -1,5 +1,6 @@
 #include "assetManager.h"
-#include <texture.h>
+#include "texture.h"
+#include "animation.h"
 #include <filesystem>
 #include <memory>
 #include <spdlog/spdlog.h>
@@ -42,4 +43,23 @@ std::shared_ptr<Texture> AssetManager::loadTexture(const std::string &id, const 
 
 bool AssetManager::removeTexture(const std::string &id) {
   return removeAsset<Texture>(id);
+}
+
+std::shared_ptr<Animation> AssetManager::loadAnimation(
+  const std::string &id,
+  const std::string &filename,
+  SDL_Renderer *renderer,
+  int frameWidth,
+  int frameHeight,
+  int frameCount,
+  float frameTime
+){
+  std::string fullPath = (_basePath / filename).string();
+
+  std::shared_ptr<Animation> animation = createAsset<Animation>(id, fullPath, renderer, frameWidth, frameHeight, frameCount, frameTime);
+  return animation;
+}
+
+bool AssetManager::removeAnimation(const std::string &id) {
+  return removeAsset<Animation>(id);
 }

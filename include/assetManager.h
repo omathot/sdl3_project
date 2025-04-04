@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_render.h>
 #include <filesystem>
 #include <memory>
 #include <spdlog/spdlog.h>
@@ -38,6 +39,15 @@ public:
   std::shared_ptr<Texture> loadTexture(const std::string &id, const std::string &filename, SDL_Renderer *renderer);
   bool removeTexture(const std::string &id);
 
+  std::shared_ptr<Animation> loadAnimation(const std::string &id,
+                                           const std::string &filename,
+                                           SDL_Renderer *renderer,
+                                           int frameWidth,
+                                           int frameHeight,
+                                           int frameCount,
+                                           float frameTime);
+  bool removeAnimation(const std::string &id);
+
 private:
   std::filesystem::path _basePath;
   std::unordered_map<std::string, std::shared_ptr<Asset>> _assets;
@@ -47,19 +57,24 @@ private:
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
   // I HATE TEMPLATES MORE THAN YOU BUT THIS JUST MAKES SENSE HERE; AUDIOS, TEXTURES, ANIMATIONS, MESHES, FONTS, SHADERS ETC...
-  template<typename T> std::shared_ptr<T> createAsset(const std::string &id, const std::string &path, SDL_Renderer *renderer) {
+  template<typename T, typename... Args> std::shared_ptr<T> createAsset(const std::string &id,
+                                                                        const std::string &path,
+                                                                        SDL_Renderer *renderer,
+                                                                        Args... args) {
     static_assert(std::is_base_of<Asset, T>::value, "T must derive from Asset");
 
-    auto asset = std::make_shared<T>(path);
+    auto asset = std::make_shared<T>(path, args...);
     if constexpr (std::is_same_v<T, Texture>) {
       if (!asset->load(renderer)) {
         spdlog::error("Failed to load Texture: {}", path);
+        return nullptr;
       }
     } else if constexpr(std::is_same_v<T, Animation>) { 
       if (!asset->load(renderer)) {
         spdlog::error("Failed to load Animation: {}", path);
+        return nullptr;
       }
-    } else { // other asset type
+    } else { // other asset types
       
     }
     _assets[id] = asset;
@@ -81,8 +96,10 @@ private:
       spdlog::error("Asset {} exists but is not of expected type", _assets[id]->getPath());
       return false;
     }
+
+    std::string path = _assets[id]->getPath();
     _assets.erase(id);
-    spdlog::debug("Asset {} removed", _assets[id]->getPath());
+    spdlog::debug("Asset {} removed", path);
     return true;
   }
 };

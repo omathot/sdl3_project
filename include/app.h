@@ -5,6 +5,8 @@
 #include <spdlog/spdlog.h>
 #include <map>
 #include <memory>
+#include "animation.h"
+
 
 struct SDLWindowCleaner{
   void operator()(SDL_Window *window) {
@@ -44,4 +46,7 @@ private:
   bool _isRunning;
   std::map<std::string, std::shared_ptr<Texture>> _textures;
   std::string _currentTexture;
+
+  // --
+  std::shared_ptr<Animation> _animation;
 };

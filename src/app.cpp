@@ -11,6 +11,7 @@ App::App() : _assetManager(std::make_unique<AssetManager>()), _textures{} {
   this->_window = nullptr;
   this->_isRunning = false;
   this->_currentTexture = "UP";
+  this->_animation = nullptr;
 }
 
 App::~App() {
@@ -43,6 +44,14 @@ bool App::init() {
     _textures["RIGHT"] = _assetManager->loadTexture("RIGHT", "honey.png", _renderer.get());
     _textures["LEFT"] = _assetManager->loadTexture("LEFT", "penguin.png", _renderer.get());
 
+    _animation = _assetManager->loadAnimation("player_idle", "V1/Player Idle/Player Idle 48x48.png", _renderer.get(), 48, 48, 10, 0.1);
+    if (!_animation->isLoaded()) {
+      success = false;
+      spdlog::error("Failed to load animation {}", _animation->getPath());
+    }
+    spdlog::debug("Animation loaded at path {}", _animation->getPath());
+    _animation->stop();
+
     for (const auto &[key, texture]: _textures) {
       if (!texture) {
         success = false;
@@ -56,6 +65,8 @@ bool App::init() {
 void App::run() {
   SDL_Event event;
   _isRunning = true;
+  bool showAnimation = false;
+
   while (_isRunning) {
     while (SDL_PollEvent(&event)) {
       if (event.type == SDL_EVENT_QUIT) {
@@ -66,26 +77,41 @@ void App::run() {
         }
         if (event.key.key == SDLK_UP) {
           _currentTexture = "UP";
+          showAnimation = false;
         } else if (event.key.key == SDLK_DOWN) {
           _currentTexture = "DOWN";
+          showAnimation = false;
         } else if (event.key.key == SDLK_LEFT) {
           _currentTexture = "LEFT";
+          showAnimation = false;
         } else if (event.key.key == SDLK_RIGHT) {
           _currentTexture = "RIGHT";
+          showAnimation = false;
+        } else if (event.key.key == SDLK_SPACE) {
+          _currentTexture = "";
+          showAnimation = true;
+          _animation->play();
         }
       }
     }
     SDL_SetRenderDrawColor(_renderer.get(), 0xFF, 0xFF, 0xFF, 0xFF);
     SDL_RenderClear(_renderer.get());
-    auto it = _textures.find(_currentTexture);
-    if (it == _textures.end()) {
-      spdlog::error("Cannot find {} in _textures", _currentTexture);
-      continue;
-    }
     int w = 0;
     int h = 0;
     SDL_GetWindowSize(_window.get(), &w, &h);
-    SDL_RenderTexture(_renderer.get(), it->second->getTexture().get(), NULL, NULL);
+    if (!showAnimation && _currentTexture != "") {
+      auto it = _textures.find(_currentTexture);
+      if (it == _textures.end()) {
+        spdlog::error("Cannot find {} in _textures", _currentTexture);
+        continue;
+      }
+      SDL_RenderTexture(_renderer.get(), it->second->getTexture().get(), NULL, NULL);
+    } else {
+      _animation->update();
+      float x = (w - _animation->getFrameWidth()) / 2.0f;
+      float y = (h - _animation->getFrameHeight()) / 2.0f;
+      _animation->render(_renderer.get(), x, y, 0, 5);
+    }
     SDL_RenderPresent(_renderer.get());
   }
 }

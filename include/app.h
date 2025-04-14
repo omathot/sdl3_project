@@ -50,6 +50,6 @@ private:
   std::string _currentTexture;
 
   // --
-  std::unique_ptr<Player> _player;
+  // std::unique_ptr<Player> _player;
   std::shared_ptr<Animation> _animation;
 };

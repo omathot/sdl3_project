@@ -3,6 +3,7 @@
 #include <SDL3/SDL_render.h>
 #include <functional>
 #include <string>
+#include <memory>
 #include <unordered_map>
 #include "common.h"
 

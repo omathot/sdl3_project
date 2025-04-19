@@ -8,16 +8,16 @@
 AssetManager::AssetManager(const std::string &path) {
   _basePath = std::filesystem::current_path();
   spdlog::debug("Initializing AssetManager");
-  std::filesystem::path projectRoot = findProjectRoot();
+  std::filesystem::path projectRoot = findProjectRoot(path);
   _basePath = projectRoot / path;
   spdlog::debug("AssetManager initialied with basePath: {}", _basePath.string());
 }
 
-std::filesystem::path AssetManager::findProjectRoot() {
+std::filesystem::path AssetManager::findProjectRoot(const std::string &path) {
   std::filesystem::path currentPath = std::filesystem::current_path();
 
   while (!currentPath.empty()) {
-    if (std::filesystem::exists(currentPath / "CMakeLists.txt") && std::filesystem::exists(currentPath / "assets/")) {
+    if (std::filesystem::exists(currentPath / "CMakeLists.txt") && std::filesystem::exists(currentPath / path)) {
       return currentPath;
     }
     std::filesystem::path parentPath = currentPath.parent_path();

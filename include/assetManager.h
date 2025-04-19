@@ -1,7 +1,6 @@
 #pragma once
 
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_render.h>
 #include <filesystem>
 #include <memory>
 #include <spdlog/spdlog.h>
@@ -11,7 +10,6 @@
 
 class Texture;
 class Animation;
-// other assets forward declaration
 
 class Asset {
 public:
@@ -34,7 +32,7 @@ public:
   AssetManager(AssetManager &&src) noexcept = default;
   AssetManager &operator=(AssetManager &&src) noexcept = default;
 
-  std::filesystem::path findProjectRoot();
+  std::filesystem::path findProjectRoot(const std::string &path = "assets/");
 
   std::shared_ptr<Texture> loadTexture(const std::string &id, const std::string &filename, SDL_Renderer *renderer);
   bool removeTexture(const std::string &id);
@@ -55,8 +53,9 @@ private:
 
 
 
-//--------------------------------------------------------------------------------------------------------------------------------------------
-  // I HATE TEMPLATES MORE THAN YOU BUT THIS JUST MAKES SENSE HERE; AUDIOS, TEXTURES, ANIMATIONS, MESHES, FONTS, SHADERS ETC...
+//
+// I HATE TEMPLATES MORE THAN YOU BUT THIS JUST MAKES SENSE HERE; AUDIOS, TEXTURES, ANIMATIONS, MESHES, FONTS, SHADERS ETC...
+//
   template<typename T, typename... Args> std::shared_ptr<T> createAsset(const std::string &id,
                                                                         const std::string &path,
                                                                         SDL_Renderer *renderer,

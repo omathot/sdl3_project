@@ -25,6 +25,7 @@ public:
 
   explicit AssetManager(std::unique_ptr<SDL_Renderer> &renderer, const std::string &basePath = "assets/");
   explicit AssetManager(const std::string &basePath = "assets/");
+  void setBasePath(const std::string &basePath);
   // no copy
   AssetManager(const AssetManager &src) = delete;
   AssetManager &operator=(const AssetManager &src) = delete;

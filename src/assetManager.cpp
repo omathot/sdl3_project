@@ -2,7 +2,9 @@
 #include "texture.h"
 #include "animation.h"
 #include "app.h"
+#include <filesystem>
 #include <memory>
+#include <spdlog/spdlog.h>
 
 
 AssetManager::AssetManager(std::unique_ptr<SDL_Renderer> &renderer, const std::string &path) : _renderer(renderer.get()) {
@@ -23,6 +25,14 @@ AssetManager::AssetManager(const std::string &path) : _renderer(nullptr) {
 
 void AssetManager::setRenderer(std::unique_ptr<SDL_Renderer, SDLRendererCleaner> &renderer) {
   _renderer = renderer.get();
+}
+
+void AssetManager::setBasePath(const std::string &basePath) {
+  _basePath.clear();
+  _basePath = std::filesystem::current_path();
+  std::filesystem::path projectRoot = findProjectRoot(basePath);
+  _basePath = projectRoot / basePath;
+  spdlog::debug("AssetManager basePath now set to {}", _basePath.string());
 }
 
 std::filesystem::path AssetManager::findProjectRoot(const std::string &path) {

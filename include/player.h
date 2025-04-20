@@ -12,7 +12,7 @@ class AssetManager;
 
 class Player {
 public:
-  Player(AssetManager &mgr, SDL_Renderer *renderer);
+  Player(AssetManager &mgr);
 
   void registerStates();
   void changeState(const std::string &stateName);

@@ -1,6 +1,7 @@
 #include "app.h"
 #include "assetManager.h"
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_render.h>
 #include <SDL3_image/SDL_image.h>
 #include <memory>
 #include <spdlog/spdlog.h>
@@ -15,8 +16,6 @@ App::App() : _assetManager(std::make_unique<AssetManager>()), _textures{} {
 }
 
 App::~App() {
-  spdlog::debug("Cleaning textures");
-
   spdlog::info("Quitting");
   SDL_Quit();
 }
@@ -38,13 +37,14 @@ bool App::init() {
     _window.reset(windowPtr);
     _renderer.reset(rendererPtr);
     spdlog::debug("Initialised App window and renderer");
+    _assetManager->setRenderer(_renderer);
 
-    _textures["UP"] = _assetManager->loadTexture("UP", "girl.png", _renderer.get());
-    _textures["DOWN"] = _assetManager->loadTexture("DOWN", "emoticons.png", _renderer.get());
-    _textures["RIGHT"] = _assetManager->loadTexture("RIGHT", "honey.png", _renderer.get());
-    _textures["LEFT"] = _assetManager->loadTexture("LEFT", "penguin.png", _renderer.get());
+    _textures["UP"] = _assetManager->loadTexture("UP", "girl.png");
+    _textures["DOWN"] = _assetManager->loadTexture("DOWN", "emoticons.png");
+    _textures["RIGHT"] = _assetManager->loadTexture("RIGHT", "honey.png");
+    _textures["LEFT"] = _assetManager->loadTexture("LEFT", "penguin.png");
 
-    _animation = _assetManager->loadAnimation("player_idle", "V1/Player Idle/Player Idle 48x48.png", _renderer.get(), 48, 48, 10, 0.1);
+    _animation = _assetManager->loadAnimation("player_idle", "V1/Player Idle/Player Idle 48x48.png", 48, 48, 10, 0.1);
     if (!_animation->isLoaded()) {
       success = false;
       spdlog::error("Failed to load animation {}", _animation->getPath());
@@ -126,6 +126,10 @@ SDL_Renderer *App::getRenderer() const {
 
 std::map<std::string, std::shared_ptr<Texture>> App::getTextures() const {
   return this->_textures;
+}
+
+AssetManager *App::getAssetManager() const {
+  return _assetManager.get();
 }
 
 bool App::isRunning() const {

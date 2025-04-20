@@ -1,5 +1,6 @@
 #pragma once
 
+#include "assetManager.h"
 #include "texture.h"
 #include <SDL3/SDL.h>
 #include <spdlog/spdlog.h>
@@ -39,6 +40,7 @@ public:
   SDL_Renderer *getRenderer() const;
   SDL_Window *getWindow() const;
   std::map<std::string, std::shared_ptr<Texture>> getTextures() const;
+  AssetManager *getAssetManager() const;
   bool isRunning() const;
 
 private:

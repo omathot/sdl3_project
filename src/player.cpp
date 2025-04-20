@@ -5,7 +5,7 @@
 #include <SDL3/SDL_keycode.h>
 #include <cstdlib>
 
-Player::Player(AssetManager &mgr, SDL_Renderer *renderer) {
+Player::Player(AssetManager &mgr) {
   _username = "JohnnyBoi";
   _pos = {300, 400, 0};
   _velocity = {0, 0};
@@ -14,13 +14,13 @@ Player::Player(AssetManager &mgr, SDL_Renderer *renderer) {
   _touchingWall = false;
   _currentState = "idle";
 
-  _animations["idle"] = mgr.loadAnimation("player_idle", "V1/Player Idle/Player Idle 48x48.png", renderer, 48, 48, 10, 0.1);
-  _animations["run"] = mgr.loadAnimation("player_run", "V1/Player Run/Player Run 48x48.png", renderer, 48, 48, 8, 0.1);
-  _animations["jump"] = mgr.loadAnimation("player_jump", "V1/Player Jump/Player Jump 48x48.png", renderer, 48, 48, 3, 0.1);
-  _animations["land"] = mgr.loadAnimation("player_land", "V1/Player Land/Player Land 48x48.png", renderer, 48, 48, 9, 0.1);
-  _animations["wall_land"] = mgr.loadAnimation("player_wall_land", "V1/Player Wall Land/Player Wall Land 48x48.png", renderer, 48, 48, 6, 0.1);
-  _animations["wall_slide"] = mgr.loadAnimation("player_wall_slide", "V1/Player Wall Slide/Player Wall Slide 48x48.png", renderer, 48, 48, 3, 0.1);
-  _animations["dash"] = mgr.loadAnimation("player_dash", "V1/Player Dash/Player Dash 48x48.png", renderer, 48, 48, 9, 0.1);
+  _animations["idle"] = mgr.loadAnimation("player_idle", "V1/Player Idle/Player Idle 48x48.png", 48, 48, 10, 0.1);
+  _animations["run"] = mgr.loadAnimation("player_run", "V1/Player Run/Player Run 48x48.png", 48, 48, 8, 0.1);
+  _animations["jump"] = mgr.loadAnimation("player_jump", "V1/Player Jump/Player Jump 48x48.png", 48, 48, 3, 0.1);
+  _animations["land"] = mgr.loadAnimation("player_land", "V1/Player Land/Player Land 48x48.png", 48, 48, 9, 0.1);
+  _animations["wall_land"] = mgr.loadAnimation("player_wall_land", "V1/Player Wall Land/Player Wall Land 48x48.png", 48, 48, 6, 0.1);
+  _animations["wall_slide"] = mgr.loadAnimation("player_wall_slide", "V1/Player Wall Slide/Player Wall Slide 48x48.png", 48, 48, 3, 0.1);
+  _animations["dash"] = mgr.loadAnimation("player_dash", "V1/Player Dash/Player Dash 48x48.png", 48, 48, 9, 0.1);
   registerStates();
   changeState("idle");
 }
